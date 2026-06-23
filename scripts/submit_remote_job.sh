@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Έλεγχος αν έχει γίνει source το bigdata-env.sh
 if [ -z "$VDCLOUD_USER" ]; then
     echo "Σφάλμα: Δεν βρέθηκε η μεταβλητή \$VDCLOUD_USER. Παρακαλώ τρέξτε πρώτα: source ~/bigdata-env.sh"
     exit 1
@@ -16,6 +15,7 @@ spark-submit \
   --master k8s://https://10.42.0.1:6443 \
   --deploy-mode cluster \
   --name prepare-parquet \
+  --py-files jobs/common.py \
   --conf spark.kubernetes.namespace=${VDCLOUD_USER}-priv \
   --conf spark.eventLog.enabled=false \
   --conf spark.executor.instances=2 \

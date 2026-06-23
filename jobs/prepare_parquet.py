@@ -9,9 +9,9 @@ from common import parse_args, calculate_personal_params, get_spark_session
 def main():
     # 1. Ανάλυση ορισμάτων
     args = parse_args()
-    params = calculate_personal_params(args.student-id)
+    params = calculate_personal_params(args.student_id)
     
-    print(f"=== Έναρξη Προετοιμασίας Parquet για το AM: {args.student-id} ===")
+    print(f"=== Έναρξη Προετοιμασίας Parquet για το AM: {args.student_id} ===")
     print(f"Έγκυρες ώρες: {params['valid_hours']}")
     print(f"Έγκυρες ημέρες (2024): {params['valid_days_2024']}")
 
