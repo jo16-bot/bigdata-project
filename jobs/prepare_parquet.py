@@ -20,7 +20,6 @@ def main():
     start_time = time.time()
 
     # 3. Ρητό Σχήμα (Explicit Schema) για τα Yellow Taxi CSV
-    # Ορισμός μόνο των βασικών στηλών για βελτιστοποίηση απόδοσης
     taxi_schema = StructType([
         StructField("VendorID", IntegerType(), True),
         StructField("tpep_pickup_datetime", TimestampType(), True),
@@ -43,28 +42,27 @@ def main():
 
     # 4. Επεξεργασία Δεδομένων 2015
     print(">>> Επεξεργασία έτους 2015...")
-    # Διαβάζουμε όλα τα CSV του 2015 (π.χ. yellow_tripdata_2015-*.csv)
+    # ΔΙΟΡΘΩΣΗ: Απευθείας το αρχείο χωρίς -*.csv
     df_2015 = spark.read.format("csv") \
         .option("header", "true") \
         .schema(taxi_schema) \
-        .load(f"{args.input_base}/yellow_tripdata_2015-*.csv")
+        .load(f"{args.input_base}/yellow_tripdata_2015.csv")
 
-    # Φιλτράρισμα βάσει AM
     df_2015_filtered = df_2015 \
         .withColumn("pickup_hour", F.hour("tpep_pickup_datetime")) \
         .filter((F.year("tpep_pickup_datetime") == 2015) & 
                 (F.col("pickup_hour").isin(params['valid_hours'])))
 
-    # Αποθήκευση σε Parquet (με partition βάσει μήνα αν επιθυμείτε, ή απλό write)
     output_path_2015 = f"{args.output_base}/data/parquet/yellow_tripdata_2015"
     df_2015_filtered.write.mode("overwrite").parquet(output_path_2015)
 
     # 5. Επεξεργασία Δεδομένων 2024
     print(">>> Επεξεργασία έτους 2024...")
+    # ΔΙΟΡΘΩΣΗ: Απευθείας το αρχείο χωρίς -*.csv
     df_2024 = spark.read.format("csv") \
         .option("header", "true") \
         .schema(taxi_schema) \
-        .load(f"{args.input_base}/yellow_tripdata_2024-*.csv")
+        .load(f"{args.input_base}/yellow_tripdata_2024.csv")
 
     df_2024_filtered = df_2024 \
         .withColumn("pickup_hour", F.hour("tpep_pickup_datetime")) \
@@ -76,12 +74,9 @@ def main():
     output_path_2024 = f"{args.output_base}/data/parquet/yellow_tripdata_2024"
     df_2024_filtered.write.mode("overwrite").parquet(output_path_2024)
 
-    # 6. Καταγραφή Χρόνου και Μετρικών
     end_time = time.time()
     duration = end_time - start_time
     print(f"=== Η προετοιμασία ολοκληρώθηκε επιτυχώς σε {duration:.2f} δευτερόλεπτα! ===")
-
-    # Στο μέλλον εδώ θα καλούμε τη save_metrics για το JSON
 
 if __name__ == "__main__":
     main()
